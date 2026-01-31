@@ -30,19 +30,18 @@ app.post('/api/discover', async (req, res) => {
     return res.status(400).json({ error: 'Company name required' });
   }
 
-  // TODO: integrate with Rtrvr.ai to scrape reviews
-  // For now, just return mock data
-  res.json({
-    company,
-    reviews: [
-      {
-        text: "This product changed our workflow completely",
-        author: "John D.",
-        source: "G2",
-        rating: 5
-      }
-    ]
-  });
+  try {
+    const { scrapeReviews } = require('./scraper');
+    const reviews = await scrapeReviews(company);
+
+    res.json({
+      company,
+      count: reviews.length,
+      reviews
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.listen(PORT, () => {
