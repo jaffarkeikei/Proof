@@ -1,0 +1,727 @@
+[
+  {
+    "reason": "Configuration module loads and validates environment variables for all external APIs",
+    "description": "Centralized configuration manager that loads environment variables from .env file and validates required API keys (Rtrvr, Cerebras, ElevenLabs, Grok, Twilio, Toolhouse). Exports typed configuration object with validation errors thrown at startup. Uses dotenv for loading and provides singleton access pattern.",
+    "dependencies": [],
+    "priority": 1,
+    "filename": "config_JavaScript.prompt",
+    "filepath": "src/utils/config.js",
+    "tags": [
+      "backend",
+      "config",
+      "utils"
+    ],
+    "context_urls": [
+      {
+        "url": "https://www.npmjs.com/package/dotenv",
+        "purpose": "Environment variable loading with dotenv"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "getConfig",
+            "signature": "function getConfig()",
+            "returns": "Config object with validated API keys"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Logger provides structured logging for debugging and monitoring agent execution",
+    "description": "Winston-based logging module with structured JSON output, multiple transports (console, file), and log levels (error, warn, info, debug). Includes request correlation IDs and timestamps. Used by all agents for consistent logging pattern.",
+    "dependencies": [],
+    "priority": 2,
+    "filename": "logger_JavaScript.prompt",
+    "filepath": "src/utils/logger.js",
+    "tags": [
+      "backend",
+      "utils",
+      "logging"
+    ],
+    "context_urls": [
+      {
+        "url": "https://github.com/winstonjs/winston",
+        "purpose": "Winston logger for structured logging"
+      },
+      {
+        "url": "https://github.com/winstonjs/winston#usage",
+        "purpose": "Winston usage examples and best practices"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "createLogger",
+            "signature": "function createLogger(module: string)",
+            "returns": "Logger instance for specified module"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Database module provides SQLite connection and schema initialization for pipeline state persistence",
+    "description": "Better-sqlite3 based database module using synchronous API for performance. Creates tables for reviews, scripts, videos, and pipeline runs. Provides CRUD operations and transaction support. Initializes schema on first run.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt"
+    ],
+    "priority": 3,
+    "filename": "database_JavaScript.prompt",
+    "filepath": "src/utils/database.js",
+    "tags": [
+      "backend",
+      "database",
+      "utils"
+    ],
+    "context_urls": [
+      {
+        "url": "https://github.com/WiseLibs/better-sqlite3/blob/master/docs/api.md",
+        "purpose": "better-sqlite3 API documentation and synchronous patterns"
+      },
+      {
+        "url": "https://github.com/WiseLibs/better-sqlite3/blob/master/docs/best-practices.md",
+        "purpose": "SQLite best practices and transaction handling"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "getDatabase",
+            "signature": "function getDatabase()",
+            "returns": "Database instance",
+            "sideEffects": "Creates SQLite file and initializes schema"
+          },
+          {
+            "name": "savePipelineRun",
+            "signature": "function savePipelineRun(run: PipelineRun)",
+            "returns": "number runId"
+          },
+          {
+            "name": "saveReviews",
+            "signature": "function saveReviews(reviews: Review[])",
+            "returns": "void"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Validation module provides input validation schemas for API requests and agent data",
+    "description": "Zod-based validation schemas for pipeline inputs (company name, review data), API request payloads, and inter-agent data contracts. Provides type-safe validation with detailed error messages. Exports reusable schemas for all data structures.",
+    "dependencies": [],
+    "priority": 4,
+    "filename": "validation_JavaScript.prompt",
+    "filepath": "src/utils/validation.js",
+    "tags": [
+      "backend",
+      "utils",
+      "validation"
+    ],
+    "context_urls": [
+      {
+        "url": "https://zod.dev/",
+        "purpose": "Zod validation library documentation"
+      },
+      {
+        "url": "https://zod.dev/?id=basic-usage",
+        "purpose": "Zod basic usage and schema definition"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "validatePipelineInput",
+            "signature": "function validatePipelineInput(input: unknown)",
+            "returns": "PipelineInput",
+            "errors": [
+              "ValidationError"
+            ]
+          },
+          {
+            "name": "reviewSchema",
+            "signature": "const reviewSchema: ZodSchema",
+            "returns": "Zod schema for review validation"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Discovery agent scrapes reviews from web sources using Rtrvr.ai API",
+    "description": "Agent that calls Rtrvr.ai API to scrape reviews from G2, Trustpilot, Reddit, and Twitter/X given a company name or URL. Handles API rate limiting with axios-retry. Returns normalized review array with metadata (platform, author, rating, text, date). Implements error handling and retry logic.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "validation_JavaScript.prompt"
+    ],
+    "priority": 5,
+    "filename": "discovery_agent_JavaScript.prompt",
+    "filepath": "src/agents/discovery.js",
+    "tags": [
+      "backend",
+      "agent",
+      "rtrvr"
+    ],
+    "context_urls": [
+      {
+        "url": "https://www.rtrvr.ai/docs",
+        "purpose": "Rtrvr.ai API documentation for web scraping"
+      },
+      {
+        "url": "https://axios-http.com/docs/intro",
+        "purpose": "Axios HTTP client for API requests"
+      },
+      {
+        "url": "https://github.com/softonic/axios-retry",
+        "purpose": "Axios retry plugin for handling rate limits"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "discoverReviews",
+            "signature": "async function discoverReviews(companyIdentifier: string)",
+            "returns": "Promise<Review[]>",
+            "errors": [
+              "RtrvrAPIError",
+              "ValidationError"
+            ],
+            "sideEffects": "Calls external Rtrvr.ai API"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Analysis agent uses Cerebras inference to rank reviews and extract quotes",
+    "description": "Agent that sends review array to Cerebras API for fast LLM inference. Uses OpenAI-compatible endpoint to rank reviews by conversion potential, extract key quotes, and identify themes. Returns top 5 reviews with extracted hooks and sentiment scores. Handles API errors and rate limiting.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "validation_JavaScript.prompt"
+    ],
+    "priority": 6,
+    "filename": "analysis_agent_JavaScript.prompt",
+    "filepath": "src/agents/analysis.js",
+    "tags": [
+      "backend",
+      "agent",
+      "cerebras",
+      "ai"
+    ],
+    "context_urls": [
+      {
+        "url": "https://docs.cerebras.ai",
+        "purpose": "Cerebras Cloud API documentation"
+      },
+      {
+        "url": "https://docs.cerebras.ai/api-reference/chat-completions",
+        "purpose": "Cerebras chat completions API (OpenAI-compatible)"
+      },
+      {
+        "url": "https://axios-http.com/docs/intro",
+        "purpose": "Axios for HTTP requests to Cerebras API"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "analyzeReviews",
+            "signature": "async function analyzeReviews(reviews: Review[])",
+            "returns": "Promise<AnalyzedReview[]>",
+            "errors": [
+              "CerebrasAPIError"
+            ],
+            "sideEffects": "Calls Cerebras inference API"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Permission agent sends SMS consent requests to customers via Twilio",
+    "description": "Agent that uses Twilio SMS API to send permission requests to review authors. Generates consent links with unique tokens and sends personalized SMS messages. Tracks consent status in database. Handles phone number validation and Twilio API errors. For demo, provides simulation mode.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "database_JavaScript.prompt",
+      "validation_JavaScript.prompt"
+    ],
+    "priority": 7,
+    "filename": "permission_agent_JavaScript.prompt",
+    "filepath": "src/agents/permission.js",
+    "tags": [
+      "backend",
+      "agent",
+      "twilio",
+      "sms"
+    ],
+    "context_urls": [
+      {
+        "url": "https://www.twilio.com/docs/messaging/quickstart",
+        "purpose": "Twilio SMS quickstart guide"
+      },
+      {
+        "url": "https://www.twilio.com/docs/sms/api/message-resource",
+        "purpose": "Twilio Message resource API reference"
+      },
+      {
+        "url": "https://www.npmjs.com/package/twilio",
+        "purpose": "Twilio Node.js SDK"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "requestPermission",
+            "signature": "async function requestPermission(review: AnalyzedReview)",
+            "returns": "Promise<PermissionStatus>",
+            "errors": [
+              "TwilioAPIError"
+            ],
+            "sideEffects": "Sends SMS via Twilio and saves to database"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Generation agent creates video testimonials using ElevenLabs and Grok APIs",
+    "description": "Agent that generates video content from approved reviews. First creates voiceover using ElevenLabs text-to-speech API, then generates video using Grok video API with script and visuals. Produces 3-5 variations per review with different angles (problem/solution/transformation). Saves video files to local storage and metadata to database.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "database_JavaScript.prompt",
+      "validation_JavaScript.prompt"
+    ],
+    "priority": 8,
+    "filename": "generation_agent_JavaScript.prompt",
+    "filepath": "src/agents/generation.js",
+    "tags": [
+      "backend",
+      "agent",
+      "elevenlabs",
+      "grok",
+      "ai"
+    ],
+    "context_urls": [
+      {
+        "url": "https://elevenlabs.io/docs/api-reference/text-to-speech/convert",
+        "purpose": "ElevenLabs text-to-speech API reference"
+      },
+      {
+        "url": "https://elevenlabs.io/docs/api-reference/streaming",
+        "purpose": "ElevenLabs streaming API for audio generation"
+      },
+      {
+        "url": "https://docs.x.ai/docs/guides/video-generations",
+        "purpose": "xAI Grok video generation API documentation"
+      },
+      {
+        "url": "https://docs.x.ai/api",
+        "purpose": "xAI API reference and authentication"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "generateVideos",
+            "signature": "async function generateVideos(review: AnalyzedReview)",
+            "returns": "Promise<Video[]>",
+            "errors": [
+              "ElevenLabsAPIError",
+              "GrokAPIError"
+            ],
+            "sideEffects": "Calls ElevenLabs and Grok APIs, saves files to storage/videos/"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Distribution agent posts generated videos to social platforms via Toolhouse",
+    "description": "Agent that uses Toolhouse.ai platform to schedule and post videos to LinkedIn, Twitter/X, and other social platforms. Handles authentication, platform-specific formatting, and post scheduling. Returns post URLs and initial engagement metrics. Implements retry logic for failed posts.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "database_JavaScript.prompt",
+      "validation_JavaScript.prompt"
+    ],
+    "priority": 9,
+    "filename": "distribution_agent_JavaScript.prompt",
+    "filepath": "src/agents/distribution.js",
+    "tags": [
+      "backend",
+      "agent",
+      "toolhouse",
+      "social"
+    ],
+    "context_urls": [
+      {
+        "url": "https://toolhouse.ai/",
+        "purpose": "Toolhouse.ai platform overview"
+      },
+      {
+        "url": "https://docs.toolhouse.ai/",
+        "purpose": "Toolhouse API documentation for social media automation"
+      },
+      {
+        "url": "https://axios-http.com/docs/intro",
+        "purpose": "Axios for HTTP requests to Toolhouse API"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "distributeVideo",
+            "signature": "async function distributeVideo(video: Video, platforms: string[])",
+            "returns": "Promise<DistributionResult[]>",
+            "errors": [
+              "ToolhouseAPIError"
+            ],
+            "sideEffects": "Posts content to social platforms via Toolhouse"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Pipeline orchestrator coordinates sequential execution of all agents",
+    "description": "Main orchestration module that executes agents in order: Discovery \u2192 Analysis \u2192 Permission \u2192 Generation \u2192 Distribution. Manages pipeline state, error handling, and resumability. Emits progress events via EventEmitter for SSE updates. Persists pipeline runs to database. Implements fail-fast error handling with manual retry capability.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "database_JavaScript.prompt",
+      "validation_JavaScript.prompt",
+      "discovery_agent_JavaScript.prompt",
+      "analysis_agent_JavaScript.prompt",
+      "permission_agent_JavaScript.prompt",
+      "generation_agent_JavaScript.prompt",
+      "distribution_agent_JavaScript.prompt"
+    ],
+    "priority": 10,
+    "filename": "pipeline_orchestrator_JavaScript.prompt",
+    "filepath": "src/pipeline/orchestrator.js",
+    "tags": [
+      "backend",
+      "orchestrator",
+      "pipeline"
+    ],
+    "context_urls": [
+      {
+        "url": "https://nodejs.org/api/events.html",
+        "purpose": "Node.js EventEmitter for pipeline progress events"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "executePipeline",
+            "signature": "async function executePipeline(input: PipelineInput)",
+            "returns": "Promise<PipelineResult>",
+            "errors": [
+              "PipelineError"
+            ],
+            "sideEffects": "Executes all agents sequentially, emits progress events"
+          },
+          {
+            "name": "getPipelineStatus",
+            "signature": "function getPipelineStatus(runId: number)",
+            "returns": "PipelineStatus"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Express API routes expose pipeline execution and status endpoints",
+    "description": "Express.js router defining REST API endpoints: POST /api/pipeline/start, GET /api/pipeline/:runId/status, GET /api/pipeline/:runId/sse for real-time updates. Implements request validation, error handling middleware, and CORS. Routes calls to orchestrator and returns JSON responses.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "validation_JavaScript.prompt",
+      "pipeline_orchestrator_JavaScript.prompt"
+    ],
+    "priority": 11,
+    "filename": "api_routes_JavaScript.prompt",
+    "filepath": "src/api/routes.js",
+    "tags": [
+      "backend",
+      "api",
+      "express"
+    ],
+    "context_urls": [
+      {
+        "url": "https://expressjs.com/en/guide/routing.html",
+        "purpose": "Express.js routing guide"
+      },
+      {
+        "url": "https://expressjs.com/en/guide/using-middleware.html",
+        "purpose": "Express middleware for validation and error handling"
+      },
+      {
+        "url": "https://masteringjs.io/tutorials/express/server-sent-events",
+        "purpose": "Server-Sent Events with Express.js"
+      }
+    ],
+    "interface": {
+      "type": "api",
+      "api": {
+        "endpoints": [
+          {
+            "method": "POST",
+            "path": "/api/pipeline/start",
+            "auth": "none",
+            "requestSchema": "{ companyName: string }",
+            "responseSchema": "{ runId: number, status: string }"
+          },
+          {
+            "method": "GET",
+            "path": "/api/pipeline/:runId/status",
+            "auth": "none",
+            "responseSchema": "PipelineStatus"
+          },
+          {
+            "method": "GET",
+            "path": "/api/pipeline/:runId/sse",
+            "auth": "none",
+            "responseSchema": "text/event-stream"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Express server initializes app, middleware, and starts HTTP server",
+    "description": "Main Express application entry point. Sets up middleware (CORS, body-parser, morgan logging), mounts API routes, configures error handling middleware, and starts HTTP server on port 3001. Includes graceful shutdown handling and database connection initialization.",
+    "dependencies": [
+      "config_JavaScript.prompt",
+      "logger_JavaScript.prompt",
+      "database_JavaScript.prompt",
+      "api_routes_JavaScript.prompt"
+    ],
+    "priority": 12,
+    "filename": "server_JavaScript.prompt",
+    "filepath": "src/server.js",
+    "tags": [
+      "backend",
+      "server",
+      "express"
+    ],
+    "context_urls": [
+      {
+        "url": "https://expressjs.com/en/starter/hello-world.html",
+        "purpose": "Express.js getting started guide"
+      },
+      {
+        "url": "https://expressjs.com/en/guide/error-handling.html",
+        "purpose": "Express error handling patterns"
+      },
+      {
+        "url": "https://www.npmjs.com/package/cors",
+        "purpose": "CORS middleware for Express"
+      }
+    ],
+    "interface": {
+      "type": "module",
+      "module": {
+        "functions": [
+          {
+            "name": "startServer",
+            "signature": "async function startServer()",
+            "returns": "Promise<void>",
+            "sideEffects": "Starts Express server on port 3001"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Next.js root layout provides app shell with global styles and providers",
+    "description": "Next.js 15 App Router root layout component. Sets up HTML structure, imports global CSS, configures metadata (title, description), and provides React Query provider for data fetching. Uses Inter font from next/font/google.",
+    "dependencies": [],
+    "priority": 13,
+    "filename": "root_layout_TypeScriptReact.prompt",
+    "filepath": "app/layout.tsx",
+    "tags": [
+      "frontend",
+      "nextjs",
+      "layout"
+    ],
+    "context_urls": [
+      {
+        "url": "https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts",
+        "purpose": "Next.js App Router layouts and pages"
+      },
+      {
+        "url": "https://nextjs.org/docs/app/api-reference/file-conventions/layout",
+        "purpose": "Next.js layout.tsx file conventions"
+      }
+    ],
+    "interface": {
+      "type": "page",
+      "page": {
+        "route": "/",
+        "params": [],
+        "dataSources": []
+      }
+    }
+  },
+  {
+    "reason": "Dashboard page displays pipeline execution progress and video previews",
+    "description": "Main dashboard page with pipeline control form (company name input, start button), real-time progress visualization using SSE connection, and video preview cards. Shows agent execution stages with status indicators. Uses React hooks for state management and EventSource for SSE. Client component for interactivity.",
+    "dependencies": [
+      "root_layout_TypeScriptReact.prompt"
+    ],
+    "priority": 14,
+    "filename": "dashboard_page_TypeScriptReact.prompt",
+    "filepath": "app/page.tsx",
+    "tags": [
+      "frontend",
+      "nextjs",
+      "page"
+    ],
+    "context_urls": [
+      {
+        "url": "https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts",
+        "purpose": "Next.js pages in App Router"
+      },
+      {
+        "url": "https://react.dev/reference/react/useState",
+        "purpose": "React useState hook for component state"
+      },
+      {
+        "url": "https://react.dev/reference/react/useEffect",
+        "purpose": "React useEffect hook for side effects and SSE connection"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/API/EventSource",
+        "purpose": "EventSource API for Server-Sent Events"
+      }
+    ],
+    "interface": {
+      "type": "page",
+      "page": {
+        "route": "/",
+        "params": [],
+        "dataSources": [
+          {
+            "kind": "api",
+            "source": "/api/pipeline/start",
+            "method": "POST",
+            "description": "Starts pipeline execution"
+          },
+          {
+            "kind": "stream",
+            "source": "/api/pipeline/:runId/sse",
+            "description": "Real-time pipeline progress updates via SSE"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "Pipeline component visualizes agent execution stages and status",
+    "description": "React component that renders pipeline stages (Discovery, Analysis, Permission, Generation, Distribution) with status indicators (pending, in-progress, completed, error). Shows progress bar, agent-specific status messages, and estimated time remaining. Receives pipeline status as props and updates in real-time.",
+    "dependencies": [],
+    "priority": 15,
+    "filename": "pipeline_component_TypeScriptReact.prompt",
+    "filepath": "app/components/Pipeline.tsx",
+    "tags": [
+      "frontend",
+      "component",
+      "ui"
+    ],
+    "context_urls": [
+      {
+        "url": "https://react.dev/learn/passing-props-to-a-component",
+        "purpose": "React component props patterns"
+      }
+    ],
+    "interface": {
+      "type": "component",
+      "component": {
+        "props": [
+          {
+            "name": "status",
+            "type": "PipelineStatus",
+            "required": true
+          },
+          {
+            "name": "currentStage",
+            "type": "string",
+            "required": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "reason": "VideoCard component displays generated video preview with metadata",
+    "description": "React component that renders video preview card with thumbnail, title, duration, platform badges (TikTok, LinkedIn, Instagram), and download/share buttons. Shows generation status and allows selecting videos for distribution. Uses HTML5 video element with controls.",
+    "dependencies": [],
+    "priority": 16,
+    "filename": "video_card_component_TypeScriptReact.prompt",
+    "filepath": "app/components/VideoCard.tsx",
+    "tags": [
+      "frontend",
+      "component",
+      "ui"
+    ],
+    "context_urls": [
+      {
+        "url": "https://react.dev/learn/passing-props-to-a-component",
+        "purpose": "React component props and composition"
+      },
+      {
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video",
+        "purpose": "HTML5 video element for video playback"
+      }
+    ],
+    "interface": {
+      "type": "component",
+      "component": {
+        "props": [
+          {
+            "name": "video",
+            "type": "Video",
+            "required": true
+          },
+          {
+            "name": "onSelect",
+            "type": "(videoId: string) => void",
+            "required": false
+          }
+        ],
+        "emits": [
+          "select",
+          "download",
+          "share"
+        ]
+      }
+    }
+  }
+]
