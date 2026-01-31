@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Proof</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 10px; }
+    .tagline { color: #666; margin-bottom: 40px; }
+    input {
+      width: 60%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #000;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    button:hover { background: #333; }
+    #results {
+      margin-top: 40px;
+    }
+    .review {
+      background: #f5f5f5;
+      padding: 20px;
+      margin: 15px 0;
+      border-radius: 8px;
+    }
+    .loading { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Proof</h1>
+  <p class="tagline">Turn customer reviews into video testimonials</p>
+
+  <div>
+    <input
+      type="text"
+      id="company"
+      placeholder="Enter company name (e.g., Slack, Notion)"
+    />
+    <button onclick="findReviews()">Find Reviews</button>
+  </div>
+
+  <div id="results"></div>
+
+  <script>
+    async function findReviews() {
+      const company = document.getElementById('company').value;
+      const results = document.getElementById('results');
+
+      if (!company) {
+        results.innerHTML = '<p style="color: red;">Please enter a company name</p>';
+        return;
+      }
+
+      results.innerHTML = '<p class="loading">Searching for reviews...</p>';
+
+      try {
+        const response = await fetch('/api/discover', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company })
+        });
+
+        const data = await response.json();
+
+        if (data.reviews && data.reviews.length > 0) {
+          results.innerHTML = `
+            <h3>Found ${data.reviews.length} reviews</h3>
+            ${data.reviews.map(review => `
+              <div class="review">
+                <p><strong>${review.author}</strong> - ${review.source} (${review.rating}/5)</p>
+                <p>${review.text}</p>
+              </div>
+            `).join('')}
+          `;
+        } else {
+          results.innerHTML = '<p>No reviews found</p>';
+        }
+      } catch (error) {
+        results.innerHTML = '<p style="color: red;">Error: ' + error.message + '</p>';
+      }
+    }
+  </script>
+</body>
+</html>

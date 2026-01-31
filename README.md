@@ -1,21 +1,27 @@
-# Proof - Autonomous Social Proof Engine
+# Proof
 
-**Turn every customer mention into marketing gold, automatically**
+Turn customer reviews into video testimonials automatically.
 
-An AI agent pipeline that discovers customer reviews, generates personalized video testimonials, and distributes them across social platforms - all autonomously.
+## What it does
 
-## Built For
-Prompt Driven Development Hackathon @ 500 Global
-January 31, 2026
+Finds positive reviews about your product online, gets permission from customers, and generates short video testimonials for social media.
 
-## Tech Stack
-- **Rtrvr.ai** - Web scraping for review discovery
-- **Cerebras** - Fast AI inference for analysis
-- **ElevenLabs** - Voice synthesis
-- **Grok** - Video generation
-- **Twilio** - SMS permission flows
-- **Toolhouse** - Social distribution actions
-- **PromptDriven.ai** - PDD workflow orchestration
+## Hackathon Build
 
-## Status
-🚧 Under development using Prompt Driven Development
+Built for PDD Hackathon @ 500 Global (Jan 31, 2026)
+
+## Stack
+
+- Node.js / Express
+- Rtrvr.ai for web scraping
+- ElevenLabs for voice
+- Toolhouse for social posting
+
+## Setup
+
+```bash
+npm install
+cp .env.example .env
+# add your API keys
+npm start
+```
