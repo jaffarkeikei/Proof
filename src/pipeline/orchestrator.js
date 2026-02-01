@@ -106,7 +106,7 @@ export class PipelineOrchestrator extends EventEmitter {
 
       logger.info('Permission auto-approved for demo', { reviewId: topReviewId, runId });
 
-      this.emit('progress', { runId, stage: 'generation', message: 'Generating 8s video with Sora + ElevenLabs (Toolhouse enhanced)...', progress: 70 });
+      this.emit('progress', { runId, stage: 'generation', message: 'Generating video with Sora + ElevenLabs...', progress: 70 });
 
       // Stage 3: Video Generation - Use OpenAI Sora + ElevenLabs + Toolhouse
       let videoResult;

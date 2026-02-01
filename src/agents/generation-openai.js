@@ -147,13 +147,23 @@ async function generateVoiceover(text, outputPath) {
 /**
  * Generate video using OpenAI Sora
  */
-async function generateVideo(prompt, companyContext) {
-  logger.info('Generating video with Sora', { prompt });
+async function generateVideo(prompt, companyContext, reviewerName, companyName) {
+  logger.info('Generating video with Sora', { prompt, companyName, reviewerName });
 
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-  // Create video with enriched prompt
-  const fullPrompt = `Professional business testimonial video. ${companyContext}\n\n${prompt}\n\nStyle: Clean, professional, corporate testimonial video with positive, authentic feel.`;
+  // Create video with enriched prompt including text overlays
+  const fullPrompt = `Professional business testimonial video about ${companyName}. ${companyContext}
+
+${prompt}
+
+IMPORTANT: Include visible text elements in the video:
+- Company name "${companyName}" displayed prominently
+- Reviewer name "${reviewerName}" shown as attribution
+- Professional lower-third graphics with clean typography
+- Text overlays that complement the visuals
+
+Style: Clean, professional, corporate testimonial video with positive, authentic feel. Modern graphics with company branding elements.`;
 
   const createResponse = await fetch(`${OPENAI_API_BASE}/videos`, {
     method: 'POST',
@@ -254,10 +264,10 @@ export async function generateVideos(review, options = {}) {
     const audioPath = path.join(AUDIO_DIR, `${runId}-audio.mp3`);
     await generateVoiceover(script, audioPath);
 
-    // Step 4: Generate video with Sora
+    // Step 4: Generate video with Sora including context
     const videoPrompt = `Customer testimonial video about ${companyName}. A happy, authentic customer sharing their positive experience. Natural lighting, professional setting.`;
 
-    const { videoId, buffer } = await generateVideo(videoPrompt, companyContext);
+    const { videoId, buffer } = await generateVideo(videoPrompt, companyContext, review.author, companyName);
 
     // Step 5: Save video to disk
     const videoPath = path.join(VIDEOS_DIR, `${runId}.mp4`);
