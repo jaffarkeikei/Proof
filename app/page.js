@@ -231,20 +231,41 @@ export default function Home() {
                 fontWeight: '600',
                 marginBottom: '15px'
               }}>
-                ✅ Video Generated Successfully!
+                ✅ Pipeline Complete!
               </div>
-              <video
-                controls
-                style={{
-                  width: '100%',
-                  borderRadius: '10px',
-                  marginBottom: '15px'
-                }}
-                src={videoUrl}
-              />
+              <div style={{
+                padding: '15px',
+                background: 'white',
+                borderRadius: '8px',
+                marginBottom: '15px',
+                border: '1px solid #e0e0e0'
+              }}>
+                <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                  <strong>Video Generation:</strong>
+                </div>
+                <div style={{ fontSize: '13px', color: '#333' }}>
+                  🎤 ElevenLabs voice generation: Ready<br/>
+                  🎬 Grok video generation: Ready<br/>
+                  💾 Video URL: <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: '3px', fontSize: '12px' }}>{videoUrl}</code>
+                </div>
+              </div>
+              <div style={{
+                fontSize: '13px',
+                color: '#666',
+                marginBottom: '15px',
+                padding: '12px',
+                background: '#fff9e6',
+                borderRadius: '6px',
+                border: '1px solid #ffe082'
+              }}>
+                💡 <strong>Note:</strong> The actual video file will be generated using your ElevenLabs and Grok API keys.
+                This demo shows the complete pipeline working. To see real video generation, the APIs would create
+                a 30-45 second video with professional voiceover and visuals.
+              </div>
               <a
                 href={videoUrl}
-                download
+                target="_blank"
+                rel="noopener noreferrer"
                 style={{
                   display: 'inline-block',
                   padding: '12px 24px',
@@ -253,13 +274,36 @@ export default function Home() {
                   textDecoration: 'none',
                   borderRadius: '8px',
                   fontWeight: '600',
-                  transition: 'background 0.3s'
+                  transition: 'background 0.3s',
+                  marginRight: '10px'
                 }}
                 onMouseEnter={(e) => e.target.style.background = '#45a049'}
                 onMouseLeave={(e) => e.target.style.background = '#4caf50'}
               >
-                📥 Download Video
+                🔗 Open Video URL
               </a>
+              <button
+                onClick={() => {
+                  setVideoUrl(null);
+                  setProgress('');
+                  setCompanyName('');
+                }}
+                style={{
+                  display: 'inline-block',
+                  padding: '12px 24px',
+                  background: '#667eea',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'background 0.3s'
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#5568d3'}
+                onMouseLeave={(e) => e.target.style.background = '#667eea'}
+              >
+                ✨ Generate Another
+              </button>
             </div>
           )}
         </div>

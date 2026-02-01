@@ -40,6 +40,10 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serve static video files
+app.use('/videos', express.static('storage/videos'));
+app.use('/public/videos', express.static('public/videos'));
+
 // ============================================================================
 // Routes
 // ============================================================================
