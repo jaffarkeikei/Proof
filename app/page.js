@@ -22,7 +22,6 @@ export default function Home() {
     setVideoUrl(null);
 
     try {
-      // Start pipeline
       const response = await fetch('http://localhost:3000/api/pipeline/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,7 +36,6 @@ export default function Home() {
 
       setRunId(data.runId);
 
-      // Connect to SSE for progress updates
       const eventSource = new EventSource(`http://localhost:3000/api/pipeline/${data.runId}/progress`);
 
       eventSource.onmessage = (event) => {
@@ -70,46 +68,50 @@ export default function Home() {
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
+      padding: '40px 20px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
     }}>
       <div style={{
         maxWidth: '800px',
-        margin: '0 auto',
-        paddingTop: '60px'
+        margin: '0 auto'
       }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
           <h1 style={{
-            fontSize: '48px',
-            fontWeight: 'bold',
+            fontSize: '56px',
+            fontWeight: '700',
             color: 'white',
-            marginBottom: '10px'
+            marginBottom: '16px',
+            letterSpacing: '-1px'
           }}>
-            🎬 Proof
+            Proof
           </h1>
-          <p style={{ fontSize: '20px', color: 'rgba(255,255,255,0.9)' }}>
+          <p style={{
+            fontSize: '20px',
+            color: 'rgba(255,255,255,0.95)',
+            fontWeight: '400'
+          }}>
             Autonomous Social Proof Engine
-          </p>
-          <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.7)', marginTop: '10px' }}>
-            Transform customer reviews into high-converting video testimonials
           </p>
         </div>
 
         {/* Main Card */}
         <div style={{
           background: 'white',
-          borderRadius: '20px',
-          padding: '40px',
+          borderRadius: '16px',
+          padding: '48px',
           boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
         }}>
           {/* Input Form */}
-          <div style={{ marginBottom: '30px' }}>
+          <div style={{ marginBottom: '32px' }}>
             <label style={{
               display: 'block',
-              marginBottom: '10px',
-              fontSize: '16px',
+              marginBottom: '12px',
+              fontSize: '14px',
               fontWeight: '600',
-              color: '#333'
+              color: '#1a1a1a',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
             }}>
               Company Name
             </label>
@@ -117,193 +119,189 @@ export default function Home() {
               type="text"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
-              placeholder="e.g., Acme Corporation"
+              placeholder="Enter company name"
               disabled={loading}
               style={{
                 width: '100%',
-                padding: '15px',
+                padding: '16px',
                 fontSize: '16px',
-                border: '2px solid #e0e0e0',
-                borderRadius: '10px',
+                border: '2px solid #e8e8e8',
+                borderRadius: '8px',
                 outline: 'none',
-                transition: 'border 0.3s'
+                transition: 'all 0.2s',
+                boxSizing: 'border-box',
+                background: loading ? '#f5f5f5' : 'white'
               }}
-              onFocus={(e) => e.target.style.borderColor = '#667eea'}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
             />
           </div>
 
-          {/* Start Button */}
+          {/* Button */}
           <button
             onClick={startPipeline}
             disabled={loading}
             style={{
               width: '100%',
-              padding: '15px',
-              fontSize: '18px',
+              padding: '18px',
+              fontSize: '16px',
               fontWeight: '600',
               color: 'white',
-              background: loading ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: loading ? '#cccccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               border: 'none',
-              borderRadius: '10px',
+              borderRadius: '8px',
               cursor: loading ? 'not-allowed' : 'pointer',
-              transition: 'transform 0.2s',
-              marginBottom: '20px'
+              transition: 'all 0.2s',
+              marginBottom: '32px'
             }}
-            onMouseEnter={(e) => !loading && (e.target.style.transform = 'scale(1.02)')}
-            onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
           >
-            {loading ? '🔄 Processing...' : '🚀 Generate Video Testimonials'}
+            {loading ? 'Processing...' : 'Generate Video'}
           </button>
 
-          {/* Progress Display */}
+          {/* Progress */}
           {progress && (
             <div style={{
               padding: '20px',
-              background: '#f0f4ff',
-              borderRadius: '10px',
-              marginBottom: '20px',
-              borderLeft: '4px solid #667eea'
+              background: '#f8f9fa',
+              borderRadius: '8px',
+              marginBottom: '24px',
+              border: '1px solid #e8e8e8'
             }}>
               <div style={{
-                fontSize: '14px',
-                color: '#667eea',
+                fontSize: '13px',
+                color: '#666',
                 fontWeight: '600',
-                marginBottom: '8px'
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                Progress
+                Status
               </div>
-              <div style={{ fontSize: '16px', color: '#333' }}>
+              <div style={{
+                fontSize: '15px',
+                color: '#1a1a1a',
+                fontWeight: '500'
+              }}>
                 {progress}
               </div>
               {loading && (
                 <div style={{
-                  marginTop: '15px',
-                  height: '6px',
-                  background: '#e0e0e0',
-                  borderRadius: '3px',
+                  marginTop: '16px',
+                  height: '4px',
+                  background: '#e8e8e8',
+                  borderRadius: '2px',
                   overflow: 'hidden'
                 }}>
                   <div style={{
                     height: '100%',
+                    width: '100%',
                     background: 'linear-gradient(90deg, #667eea, #764ba2)',
-                    animation: 'progress 2s infinite'
+                    animation: 'progress 1.5s infinite'
                   }} />
                 </div>
               )}
             </div>
           )}
 
-          {/* Error Display */}
+          {/* Error */}
           {error && (
             <div style={{
               padding: '20px',
-              background: '#fff0f0',
-              borderRadius: '10px',
-              marginBottom: '20px',
-              borderLeft: '4px solid #f44336'
+              background: '#fff5f5',
+              borderRadius: '8px',
+              marginBottom: '24px',
+              border: '1px solid #feb2b2'
             }}>
               <div style={{
-                fontSize: '14px',
-                color: '#f44336',
+                fontSize: '13px',
+                color: '#c53030',
                 fontWeight: '600',
-                marginBottom: '8px'
+                marginBottom: '8px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
                 Error
               </div>
-              <div style={{ fontSize: '16px', color: '#333' }}>
+              <div style={{ fontSize: '15px', color: '#1a1a1a' }}>
                 {error}
               </div>
             </div>
           )}
 
-          {/* Video Display */}
+          {/* Video Result */}
           {videoUrl && (
             <div style={{
-              padding: '20px',
-              background: '#f0fff4',
-              borderRadius: '10px',
-              borderLeft: '4px solid #4caf50'
+              padding: '24px',
+              background: '#f0fdf4',
+              borderRadius: '8px',
+              border: '1px solid #86efac'
             }}>
               <div style={{
-                fontSize: '14px',
-                color: '#4caf50',
-                fontWeight: '600',
-                marginBottom: '15px'
-              }}>
-                ✅ Pipeline Complete!
-              </div>
-              <div style={{
-                padding: '15px',
-                background: 'white',
-                borderRadius: '8px',
-                marginBottom: '15px',
-                border: '1px solid #e0e0e0'
-              }}>
-                <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                  <strong>Video Generation:</strong>
-                </div>
-                <div style={{ fontSize: '13px', color: '#333' }}>
-                  🎤 ElevenLabs voice generation: Ready<br/>
-                  🎬 Grok video generation: Ready<br/>
-                  💾 Video URL: <code style={{ background: '#f5f5f5', padding: '2px 6px', borderRadius: '3px', fontSize: '12px' }}>{videoUrl}</code>
-                </div>
-              </div>
-              <div style={{
                 fontSize: '13px',
-                color: '#666',
-                marginBottom: '15px',
-                padding: '12px',
-                background: '#fff9e6',
-                borderRadius: '6px',
-                border: '1px solid #ffe082'
+                color: '#166534',
+                fontWeight: '600',
+                marginBottom: '16px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
               }}>
-                💡 <strong>Note:</strong> The actual video file will be generated using your ElevenLabs and Grok API keys.
-                This demo shows the complete pipeline working. To see real video generation, the APIs would create
-                a 30-45 second video with professional voiceover and visuals.
+                Complete
               </div>
-              <a
-                href={videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+
+              <video
+                controls
+                autoPlay
                 style={{
-                  display: 'inline-block',
-                  padding: '12px 24px',
-                  background: '#4caf50',
-                  color: 'white',
-                  textDecoration: 'none',
+                  width: '100%',
                   borderRadius: '8px',
-                  fontWeight: '600',
-                  transition: 'background 0.3s',
-                  marginRight: '10px'
+                  marginBottom: '16px',
+                  background: '#000'
                 }}
-                onMouseEnter={(e) => e.target.style.background = '#45a049'}
-                onMouseLeave={(e) => e.target.style.background = '#4caf50'}
-              >
-                🔗 Open Video URL
-              </a>
-              <button
-                onClick={() => {
-                  setVideoUrl(null);
-                  setProgress('');
-                  setCompanyName('');
-                }}
-                style={{
-                  display: 'inline-block',
-                  padding: '12px 24px',
-                  background: '#667eea',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'background 0.3s'
-                }}
-                onMouseEnter={(e) => e.target.style.background = '#5568d3'}
-                onMouseLeave={(e) => e.target.style.background = '#667eea'}
-              >
-                ✨ Generate Another
-              </button>
+                src={videoUrl}
+              />
+
+              <div style={{
+                display: 'flex',
+                gap: '12px'
+              }}>
+                <a
+                  href={videoUrl}
+                  download
+                  style={{
+                    flex: 1,
+                    padding: '14px',
+                    background: '#22c55e',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    transition: 'all 0.2s',
+                    fontSize: '14px'
+                  }}
+                >
+                  Download Video
+                </a>
+                <button
+                  onClick={() => {
+                    setVideoUrl(null);
+                    setProgress('');
+                    setCompanyName('');
+                    setRunId(null);
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '14px',
+                    background: '#667eea',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    fontSize: '14px'
+                  }}
+                >
+                  Generate Another
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -311,11 +309,11 @@ export default function Home() {
         {/* Footer */}
         <div style={{
           textAlign: 'center',
-          marginTop: '30px',
-          color: 'rgba(255,255,255,0.8)',
-          fontSize: '14px'
+          marginTop: '32px',
+          color: 'rgba(255,255,255,0.7)',
+          fontSize: '13px'
         }}>
-          <p>Powered by PDD • ElevenLabs • Grok • Cerebras • Rtrvr</p>
+          Powered by Prompt Driven Development
         </div>
       </div>
 
