@@ -106,13 +106,13 @@ export class PipelineOrchestrator extends EventEmitter {
 
       logger.info('Permission auto-approved for demo', { reviewId: topReviewId, runId });
 
-      this.emit('progress', { runId, stage: 'generation', message: 'Generating 12s video with Sora + ElevenLabs (Toolhouse enhanced)...', progress: 70 });
+      this.emit('progress', { runId, stage: 'generation', message: 'Generating 8s video with Sora + ElevenLabs (Toolhouse enhanced)...', progress: 70 });
 
       // Stage 3: Video Generation - Use OpenAI Sora + ElevenLabs + Toolhouse
       let videoResult;
       const generationModule = await import('../agents/generation-openai.js');
 
-      logger.info('Using OpenAI Sora (12s video) with Toolhouse research');
+      logger.info('Using OpenAI Sora (8s video) with Toolhouse research');
 
       // Call the real generation function with the review that has permission
       const reviewWithId = { ...topReview, id: topReviewId };

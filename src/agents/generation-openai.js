@@ -164,7 +164,7 @@ async function generateVideo(prompt, companyContext) {
     body: JSON.stringify({
       model: 'sora-2',
       prompt: fullPrompt,
-      seconds: "12"  // String format required by Sora API
+      seconds: "8"  // 8 seconds for faster generation
     })
   });
 
@@ -278,7 +278,7 @@ export async function generateVideos(review, options = {}) {
     const videoDbId = saveVideo({
       scriptId,
       filePath: videoPath,
-      duration: 12,
+      duration: 8,
       status: 'completed'
     });
 
@@ -287,7 +287,7 @@ export async function generateVideos(review, options = {}) {
       videoPath,
       videoUrl: `http://localhost:3000/videos/${runId}.mp4`,
       audioPath,
-      duration: 12,
+      duration: 8,
       status: 'completed'
     }];
 
