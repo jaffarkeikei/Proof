@@ -4,7 +4,7 @@
  */
 
 import { createLogger } from '../utils/logger.js';
-import { saveVideo, updateVideo } from '../utils/database.js';
+import { saveVideo, updateVideo, saveScript } from '../utils/database.js';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
@@ -225,19 +225,21 @@ export async function generateVideos(review, options = {}) {
 
     logger.info('Video saved', { path: videoPath, size: buffer.length });
 
-    // Step 6: Save to database
-    const videoDbId = saveVideo({
-      pipelineRunId: runId,
-      scriptId: null,
+    // Step 6: Save script to database (required for video record)
+    const scriptId = saveScript({
       reviewId: review.id,
-      videoPath,
+      angle: 'solution',
+      scriptText: script
+    });
+
+    logger.info('Script saved', { scriptId });
+
+    // Step 7: Save video to database
+    const videoDbId = saveVideo({
+      scriptId,
+      filePath: videoPath,
       duration: 4,
-      status: 'completed',
-      metadata: JSON.stringify({
-        soraVideoId: videoId,
-        companyName,
-        audioPath
-      })
+      status: 'completed'
     });
 
     return [{
