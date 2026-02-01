@@ -97,9 +97,10 @@ export class PipelineOrchestrator extends EventEmitter {
 
       savePermission({
         reviewId: topReviewId,
-        status: 'approved',
         consentToken: permissionToken,
-        requestedAt: new Date().toISOString(),
+        phoneNumber: '+1-555-0100', // Demo placeholder
+        status: 'approved',
+        sentAt: new Date().toISOString(),
         respondedAt: new Date().toISOString()
       });
 

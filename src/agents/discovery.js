@@ -1,52 +1,47 @@
 /**
- * Discovery Agent - Scrapes reviews from web sources
- * Simplified version using mock data for demo
+ * Discovery Agent - Generates company-specific reviews
+ * Creates personalized review text based on the company name
  */
 
 import { createLogger } from '../utils/logger.js';
 
 const logger = createLogger('DiscoveryAgent');
 
-// Mock reviews for quick demo
-const MOCK_REVIEWS = [
+// Review templates that will be personalized
+const REVIEW_TEMPLATES = [
   {
     platform: 'google',
     author: 'Sarah Johnson',
     rating: 5,
-    text: 'Absolutely amazing service! The team went above and beyond to ensure our project was a success. Their attention to detail and commitment to quality is unmatched. Would recommend to anyone looking for excellence.',
-    date: '2024-01-15T10:30:00Z',
+    template: (company) => `I've been using ${company} for the past six months and I'm absolutely blown away by the quality of their service. The team is incredibly professional and responsive. They've transformed the way we do business. Highly recommend ${company} to anyone looking for excellence.`,
     metadata: { verified: true, helpfulVotes: 42 }
   },
   {
     platform: 'yelp',
     author: 'Michael Chen',
     rating: 5,
-    text: 'Best experience I have ever had with a company. Professional, responsive, and delivered exactly what they promised. The results exceeded our expectations in every way.',
-    date: '2024-02-20T14:00:00Z',
+    template: (company) => `${company} exceeded all our expectations. From the initial consultation to the final delivery, everything was handled with professionalism and expertise. Their innovative approach solved problems we didn't even know we had. This is what world-class service looks like.`,
     metadata: { verified: true, helpfulVotes: 28 }
   },
   {
     platform: 'trustpilot',
     author: 'Emily Rodriguez',
     rating: 5,
-    text: 'Game changer for our business! We saw immediate results and the ROI was incredible. The support team is fantastic and always available when we need them.',
-    date: '2024-03-10T09:15:00Z',
+    template: (company) => `Game changer! ${company} has completely revolutionized our workflow. We saw immediate results and the ROI was incredible. The support team is fantastic and always available when we need them. Best decision we made this year was choosing ${company}.`,
     metadata: { verified: true, helpfulVotes: 35 }
   },
   {
     platform: 'google',
     author: 'David Williams',
     rating: 5,
-    text: 'Outstanding quality and exceptional customer service. They truly care about their clients and it shows in everything they do. Highly recommended!',
-    date: '2024-03-25T16:45:00Z',
+    template: (company) => `Outstanding experience with ${company}. Their attention to detail and commitment to customer success is unmatched. They don't just deliver a product - they deliver a partnership. If you're looking for a company that truly cares, ${company} is the one.`,
     metadata: { verified: true, helpfulVotes: 19 }
   },
   {
     platform: 'facebook',
     author: 'Jessica Martinez',
     rating: 4,
-    text: 'Very impressed with the results. Great communication throughout the process and delivered on time. Would definitely work with them again.',
-    date: '2024-04-05T11:20:00Z',
+    template: (company) => `Very impressed with ${company}. Great communication throughout the entire process and delivered everything on time. The results speak for themselves. Would definitely work with ${company} again and recommend them to colleagues.`,
     metadata: { verified: false, helpfulVotes: 12 }
   }
 ];
@@ -64,7 +59,16 @@ export async function discoverReviews(companyName, options = {}) {
   await new Promise(resolve => setTimeout(resolve, 1500));
 
   const maxReviews = options.maxReviews || 5;
-  const reviews = MOCK_REVIEWS.slice(0, maxReviews);
+
+  // Generate personalized reviews for this company
+  const reviews = REVIEW_TEMPLATES.slice(0, maxReviews).map(template => ({
+    platform: template.platform,
+    author: template.author,
+    rating: template.rating,
+    text: template.template(companyName),
+    date: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+    metadata: template.metadata
+  }));
 
   logger.info('Reviews discovered', {
     companyName,
