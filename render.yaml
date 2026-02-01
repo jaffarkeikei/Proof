@@ -1,0 +1,40 @@
+services:
+  # Backend API
+  - type: web
+    name: proof-backend
+    runtime: node
+    buildCommand: npm install
+    startCommand: node server-full.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      - key: RTRVR_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: TOOLHOUSE_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: CEREBRAS_API_KEY
+        sync: false
+      - key: GROK_API_KEY
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_PHONE_NUMBER
+        sync: false
+
+  # Frontend
+  - type: web
+    name: proof-frontend
+    runtime: node
+    buildCommand: npm install && npx next build
+    startCommand: npx next start -p 3001
+    envVars:
+      - key: NODE_ENV
+        value: production
