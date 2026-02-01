@@ -2,7 +2,7 @@ services:
   # Backend API
   - type: web
     name: proof-backend
-    runtime: node
+    env: node
     buildCommand: npm install
     startCommand: node server-full.js
     envVars:
@@ -32,7 +32,7 @@ services:
   # Frontend
   - type: web
     name: proof-frontend
-    runtime: node
+    env: node
     buildCommand: npm install && npx next build
     startCommand: npx next start -p 3001
     envVars:
