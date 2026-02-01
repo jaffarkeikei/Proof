@@ -1,0 +1,11 @@
+node_modules
+.next
+logs
+storage
+proof.db
+*.log
+.DS_Store
+server-full.js
+src/agents
+src/pipeline
+src/utils
