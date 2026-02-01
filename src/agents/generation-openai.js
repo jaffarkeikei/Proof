@@ -164,7 +164,7 @@ async function generateVideo(prompt, companyContext) {
     body: JSON.stringify({
       model: 'sora-2',
       prompt: fullPrompt,
-      seconds: 12  // 12 seconds (Sora supports 4, 8, or 12)
+      seconds: "12"  // String format required by Sora API
     })
   });
 
