@@ -16,9 +16,9 @@
  * @module utils/logger
  */
 
-const winston = require('winston');
-const path = require('path');
-const fs = require('fs');
+import winston from 'winston';
+import path from 'path';
+import fs from 'fs';
 
 // ============================================================================
 // Configuration
@@ -412,4 +412,4 @@ function createLogger(moduleName) {
 // Module Exports
 // ============================================================================
 
-module.exports = { createLogger };
+export { createLogger };
