@@ -142,7 +142,7 @@ async function generateVideo(prompt, companyContext) {
   let attempts = 0;
   const maxAttempts = 60; // 5 minutes max (5s intervals)
 
-  while (status === 'queued' || status === 'processing') {
+  while (status === 'queued' || status === 'processing' || status === 'in_progress') {
     if (attempts >= maxAttempts) {
       throw new Error('Video generation timeout');
     }
@@ -159,7 +159,7 @@ async function generateVideo(prompt, companyContext) {
     status = statusData.status;
     attempts++;
 
-    logger.info('Video generation progress', { videoId, status, attempt: attempts });
+    logger.info('Video generation progress', { videoId, status, attempt: attempts, progress: statusData.progress });
 
     if (status === 'failed') {
       throw new Error(`Video generation failed: ${statusData.error || 'Unknown error'}`);
