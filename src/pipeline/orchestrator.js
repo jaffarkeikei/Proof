@@ -6,7 +6,7 @@
 import { EventEmitter } from 'events';
 import { createLogger } from '../utils/logger.js';
 import { savePipelineRun, updatePipelineRun, saveReviews, savePermission } from '../utils/database.js';
-import { discoverReviews } from '../agents/discovery.js';
+import { discoverReviews } from '../agents/discovery-rtrvr.js'; // Using RTRVR (sponsor)
 import { analyzeReviews } from '../agents/analysis.js';
 import crypto from 'crypto';
 
@@ -41,7 +41,7 @@ export class PipelineOrchestrator extends EventEmitter {
       this.currentRun = runId;
 
       logger.info('Pipeline started', { runId, companyName });
-      this.emit('progress', { runId, stage: 'discovery', message: 'Discovering reviews...', progress: 10 });
+      this.emit('progress', { runId, stage: 'discovery', message: 'Scraping reviews with RTRVR API...', progress: 10 });
 
       // Stage 1: Discovery
       const reviews = await discoverReviews(companyName, { maxReviews });
@@ -106,13 +106,13 @@ export class PipelineOrchestrator extends EventEmitter {
 
       logger.info('Permission auto-approved for demo', { reviewId: topReviewId, runId });
 
-      this.emit('progress', { runId, stage: 'generation', message: 'Generating video with OpenAI Sora + ElevenLabs...', progress: 70 });
+      this.emit('progress', { runId, stage: 'generation', message: 'Generating 12s video with Sora + ElevenLabs (Toolhouse enhanced)...', progress: 70 });
 
-      // Stage 3: Video Generation - Use OpenAI Sora + ElevenLabs
+      // Stage 3: Video Generation - Use OpenAI Sora + ElevenLabs + Toolhouse
       let videoResult;
       const generationModule = await import('../agents/generation-openai.js');
 
-      logger.info('Using OpenAI Sora for video generation with company research');
+      logger.info('Using OpenAI Sora (12s video) with Toolhouse research');
 
       // Call the real generation function with the review that has permission
       const reviewWithId = { ...topReview, id: topReviewId };

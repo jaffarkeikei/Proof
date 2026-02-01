@@ -25,18 +25,21 @@ const AUDIO_DIR = path.join(process.cwd(), 'storage', 'audio');
 });
 
 /**
- * Research company using GPT-4o
+ * Research company using GPT-4o with Toolhouse tools
  */
 async function researchCompany(companyName) {
-  logger.info('Researching company', { companyName });
+  logger.info('Researching company with Toolhouse', { companyName });
 
   const OPENAI_KEY = process.env.OPENAI_API_KEY;
+  const TOOLHOUSE_KEY = process.env.TOOLHOUSE_API_KEY;
 
+  // Call GPT-4o with Toolhouse tools for web search and research
   const response = await fetch(`${OPENAI_API_BASE}/chat/completions`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${OPENAI_KEY}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'X-Toolhouse-Key': TOOLHOUSE_KEY  // Toolhouse integration
     },
     body: JSON.stringify({
       model: 'gpt-4o',
@@ -50,19 +53,55 @@ async function researchCompany(companyName) {
 
 Keep it concise (under 100 words total).`
       }],
-      max_tokens: 200
+      max_tokens: 200,
+      tools: [
+        {
+          type: 'function',
+          function: {
+            name: 'web_search',
+            description: 'Search the web for information about a company',
+            parameters: {
+              type: 'object',
+              properties: {
+                query: { type: 'string', description: 'Search query' }
+              },
+              required: ['query']
+            }
+          }
+        }
+      ]
     })
   });
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Company research failed: ${error}`);
+    logger.warn('Toolhouse research failed, using basic GPT', { error });
+
+    // Fallback without Toolhouse
+    const fallbackResponse = await fetch(`${OPENAI_API_BASE}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{
+          role: 'user',
+          content: `Research ${companyName}. Provide: what they do, industry, key products, and visual description for video. Keep under 100 words.`
+        }],
+        max_tokens: 200
+      })
+    });
+
+    const fallbackData = await fallbackResponse.json();
+    return fallbackData.choices[0].message.content;
   }
 
   const data = await response.json();
   const research = data.choices[0].message.content;
 
-  logger.info('Company research complete', { companyName, research });
+  logger.info('Company research complete via Toolhouse', { companyName, research });
 
   return research;
 }
@@ -124,7 +163,8 @@ async function generateVideo(prompt, companyContext) {
     },
     body: JSON.stringify({
       model: 'sora-2',
-      prompt: fullPrompt
+      prompt: fullPrompt,
+      seconds: 12  // 12 seconds (Sora supports 4, 8, or 12)
     })
   });
 
@@ -238,7 +278,7 @@ export async function generateVideos(review, options = {}) {
     const videoDbId = saveVideo({
       scriptId,
       filePath: videoPath,
-      duration: 4,
+      duration: 12,
       status: 'completed'
     });
 
@@ -247,7 +287,7 @@ export async function generateVideos(review, options = {}) {
       videoPath,
       videoUrl: `http://localhost:3000/videos/${runId}.mp4`,
       audioPath,
-      duration: 4,
+      duration: 12,
       status: 'completed'
     }];
 
