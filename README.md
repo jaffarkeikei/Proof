@@ -238,8 +238,3 @@ MIT
 
 This is a hackathon demo project. For production use, please review security, scalability, and error handling requirements.
 
-## Support
-
-For issues or questions:
-- GitHub Issues: https://github.com/jaffarkeikei/Proof/issues
-- Documentation: See architecture.json for module details
